@@ -1,1 +1,1 @@
-app: python background.py
+web: python background.py
