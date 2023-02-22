@@ -24,7 +24,7 @@ TODO OVERALL: Update repeat/occurrences system to make sense
 """
 
 
-def execution():
+def message():
     # Create an empty dictionary to store changes for group write to database
     changes = {}
     # Begin background loop
@@ -117,20 +117,6 @@ def execution():
                 edit[document['pw']] = {'type': 'delete'}
             else:
                 edit[document['pw']] = {'type': 'edit', 'content': {'$set': {'time': document['time'] - 1}}}
-        speed = t.perf_counter() - start
-        if speed > 10:
-            print(f'Long time: {speed}')
-        print(speed)
-        t.sleep(60-speed)
-
-
-def message():
-        edit = {}
-        for document in otps:
-            if document['time'] - 1 == 0:
-                edit[document['pw']] = {'type': 'delete'}
-            else:
-                edit[document['pw']] = {'type': 'edit', 'content': {'$set': {'time': document['time'] - 1}}}
 
         for otp, change in edit.items():
             if change['type'] == 'edit':
@@ -155,6 +141,7 @@ def message():
                 mongo.zoom_opener.anonymous_token.find_one_and_update({'token': token}, change['content'])
             elif change['type'] == 'delete':
                 mongo.zoom_opener.anonymous_token.find_one_and_delete({'token': token})
+
         if os.environ.get('IS_HEROKU') == 'true':
             print('Checking days')
             if int(mongo.zoom_opener.new_analytics.find_one({'id': 'day'})['value']) != int(time.strftime('%d')):
@@ -166,11 +153,12 @@ def message():
                 mongo.zoom_opener.new_analytics.find_one_and_update({'id': 'total_monthly_logins'}, {'$push': {'value': 0}})
                 mongo.zoom_opener.new_analytics.find_one_and_update({'id': 'total_monthly_signups'}, {'$push': {'value': 0}})
 
-        speed = abs(60 - (t.perf_counter() - start))
-        if speed < 50:
+
+        speed = t.perf_counter() - start
+        if speed > 10:
             print(f'Long time: {speed}')
         print(speed)
-        t.sleep(speed)
+        t.sleep(60-speed)
 
 
 message()
