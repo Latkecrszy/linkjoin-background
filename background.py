@@ -123,3 +123,6 @@ def message():
             print(f'Long time: {speed}')
         print(speed)
         t.sleep(speed)
+
+
+message()
